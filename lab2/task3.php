@@ -1,20 +1,22 @@
 <?php  
 class A { 
-  public static function test() { 
+  public function test() { 
     echo 1; 
   } 
 
-  public static function get() { 
+  public function get() { 
 
+    // Виведе 2 (доступ до похідного класу B через пізнє статичне зв'язування)
     static::test(); 
   } 
 }  
 
 class B extends A { 
-  public static function test() { 
+  public function test() { 
     echo 2; 
   } 
 } 
 
-B::get();  
+$b = new B();
+$b->get();  
 ?>
