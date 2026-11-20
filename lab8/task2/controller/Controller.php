@@ -1,5 +1,5 @@
 <?php
-include_once("model/Model.php");
+include_once(__DIR__ . "/../model/Model.php");
 
 class Controller
 {
@@ -16,7 +16,6 @@ class Controller
         $author = trim($_GET['author'] ?? '');
 
         $books = $this->model->getBooks($title, $author);
-        include 'view/booklist.php';
-    }
+        include __DIR__ . "/../view/booklist.php";    }
 }
 ?>
