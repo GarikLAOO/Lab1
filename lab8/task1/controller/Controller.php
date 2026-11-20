@@ -1,5 +1,5 @@
 <?php
-include_once("task1/model/Model.php");
+include_once("model/Model.php");
 
 class Controller
 {

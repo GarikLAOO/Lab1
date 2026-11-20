@@ -1,5 +1,5 @@
 <?php
-include_once("task1/model/Book.php");
+include_once("model/Book.php");
 
 class Model
 {
