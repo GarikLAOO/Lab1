@@ -24,9 +24,7 @@ class Post extends ActiveRecord
         return $this->hasMany(Review::class, ['post_id' => 'id']);
     }
 
-    /**
-     * Підрахунок кількості слів у Unicode-тексті (підтримка української мови).
-     */
+
     public static function countWords(?string $text): int
     {
         if ($text === null || trim($text) === '') {
@@ -39,7 +37,6 @@ class Post extends ActiveRecord
     public function rules()
     {
         return [
-            // 1. Очищення заголовка: trim + заміна послідовностей пробілів одним пробілом
             [
                 ['title'],
                 'filter',
@@ -48,7 +45,6 @@ class Post extends ActiveRecord
                     return preg_replace('/\s+/u', ' ', $value);
                 },
             ],
-            // 1. Очищення тексту: trim по краях, збереження абзаців та перенесень рядків
             [
                 ['content'],
                 'filter',
@@ -57,9 +53,7 @@ class Post extends ActiveRecord
                     return trim($value);
                 },
             ],
-            // 2. Перевірка заповнення після очищення
             [['title', 'content'], 'required', 'message' => 'Поле «{attribute}» є обов’язковим і не може бути порожнім.'],
-            // 3. Перевірка довжини заголовка (5–150 символів, Unicode)
             [
                 'title',
                 'string',
@@ -69,7 +63,6 @@ class Post extends ActiveRecord
                 'tooShort' => 'Заголовок має містити щонайменше ' . self::MIN_TITLE_LENGTH . ' символів.',
                 'tooLong' => 'Заголовок не може перевищувати ' . self::MAX_TITLE_LENGTH . ' символів.',
             ],
-            // 5. Обмеження максимальної довжини тексту (HTML-теги не видаляємо, а безпечно кодуємо при виведенні)
             [
                 'content',
                 'string',
@@ -77,7 +70,6 @@ class Post extends ActiveRecord
                 'max' => self::MAX_CONTENT_LENGTH,
                 'tooLong' => 'Текст публікації не може перевищувати ' . self::MAX_CONTENT_LENGTH . ' символів.',
             ],
-            // 4. Перевірка мінімальної кількості слів у тексті (10 слів)
             ['content', 'validateMinWords'],
             ['published', 'boolean'],
             ['published', 'default', 'value' => 1],

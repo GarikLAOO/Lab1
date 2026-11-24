@@ -7,12 +7,9 @@ use yii\db\Query;
 
 class PostStatsService
 {
-    /**
-     * Статистика та рейтинг усіх публікацій за середньою оцінкою на рівні БД.
-     */
+
     public function getFullStatistics(): array
     {
-        // 1. Основні агрегати (COUNT, AVG, MIN, MAX) + рейтинг (ORDER BY)
         $rows = (new Query())
             ->select([
                 'p.id',
@@ -35,7 +32,6 @@ class PostStatsService
             ])
             ->all();
 
-        // 2. Розподіл оцінок (1..5) для кожної публікації через GROUP BY post_id, rating
         $distRows = (new Query())
             ->select([
                 'post_id',
@@ -81,9 +77,7 @@ class PostStatsService
         return $result;
     }
 
-    /**
-     * Швидка зведена статистика (кількість та середня оцінка) для списку публікацій на post/index.
-     */
+
     public function getSummaryByPostIds(array $postIds): array
     {
         if (empty($postIds)) {
