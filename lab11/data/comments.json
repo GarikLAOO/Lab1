@@ -1,0 +1,29 @@
+[
+    {
+        "id": "cmt_6b02ccbb824d95.71199065",
+        "post_id": "book-post-7",
+        "author": "Ігор",
+        "comment": "Книга дуже гарна",
+        "rating": 4,
+        "moderation_status": "preliminary_check_passed",
+        "created_at": "2026-11-22 11:06:35"
+    },
+    {
+        "id": "cmt_6b02ce5bc3ae60.98540242",
+        "post_id": "book-post-7",
+        "author": "Oleg",
+        "comment": "Is was audacity to upload such raw book",
+        "rating": 1,
+        "moderation_status": "preliminary_check_passed",
+        "created_at": "2026-11-22 11:13:31"
+    },
+    {
+        "id": "cmt_6b02cecb495a61.54442507",
+        "post_id": "book-post-7",
+        "author": "йцкуцкуц",
+        "comment": "смчмсмчмчсм",
+        "rating": 5,
+        "moderation_status": "preliminary_check_passed",
+        "created_at": "2026-11-22 11:15:23"
+    }
+]
