@@ -21,25 +21,25 @@ $items = [
         'label' => 'Contact',
         'url' => ['/site/contact'],
     ],
-    [
-        'label' => 'Login',
-        'url' => ['/site/login'],
-        'visible' => Yii::$app->user->isGuest,
-    ],
-    ['label' => 'Анкета (Entry)', 'url' => ['/site/entry']],
-    ['label' => 'Блог (Пости)', 'url' => ['/post/index']],
+    Yii::$app->user->isGuest
+        ? ['label' => 'Реєстрація', 'url' => ['/auth/signup']]
+        : ['label' => 'Кабінет (' . Yii::$app->user->identity->username . ')', 'url' => ['/auth/profile']],
+    Yii::$app->user->isGuest
+        ? ['label' => 'Вхід', 'url' => ['/auth/login']]
+        : '<li class="nav-item">'
+            . Html::beginForm(['/auth/logout'])
+            . Html::submitButton(
+                'Вихід',
+                ['class' => 'nav-link btn btn-link logout']
+            )
+            . Html::endForm()
+            . '</li>',
+    ['label' => 'Анкета', 'url' => ['/site/entry']],
+    ['label' => 'Блог', 'url' => ['/post/index']],
     ['label' => 'Додати пост', 'url' => ['/post/create']],
     ['label' => 'Статистика', 'url' => ['/post/stats']],
     ['label' => 'Відгук про книгу', 'url' => ['/site/comment']],
-    [
-        'label' => 'Logout (' . Html::encode(Yii::$app->user->identity?->username ?? '') . ')',
-        'url' => ['/site/logout'],
-        'linkOptions' => [
-            'data-method' => 'post',
-            'class' => 'nav-link logout',
-        ],
-        'visible' => !Yii::$app->user->isGuest,
-    ],
+
 ];
 
 ?>

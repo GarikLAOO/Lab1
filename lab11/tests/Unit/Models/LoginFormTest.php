@@ -1,63 +1,76 @@
 <?php
 
-declare(strict_types=1);
+namespace tests\Unit\models;
 
-namespace app\tests\Unit\Models;
-
-use app\models\LoginForm;
 use Yii;
-use yii\base\Security;
+use Codeception\Test\Unit;
+use app\models\LoginForm;
+use app\models\SignupForm;
 
-final class LoginFormTest extends \Codeception\Test\Unit
+class LoginFormTest extends Unit
 {
-    private $_model;
-
-    protected function _after()
+    protected function _before()
     {
+        Yii::$app->user->enableSession = false;
+        Yii::$app->user->setIdentity(null);
+
+        $db = Yii::$app->db;
+        $db->createCommand('CREATE TABLE IF NOT EXISTS user (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username VARCHAR(50) NOT NULL UNIQUE,
+            email VARCHAR(150) NOT NULL UNIQUE,
+            password_hash VARCHAR(255) NOT NULL,
+            auth_key VARCHAR(64) NOT NULL,
+            created_at DATETIME NOT NULL
+        )')->execute();
+        $db->createCommand()->delete('user')->execute();
+
+        $signup = new SignupForm([
+            'username' => 'reader_ivan',
+            'email' => 'ivan@example.com',
+            'password' => 'BookPass7',
+            'password_repeat' => 'BookPass7',
+        ]);
+        $signup->signup();
+    }
+
+    public function testLoginWithValidCredentialsAndLogout()
+    {
+        $login = new LoginForm([
+            'email' => 'ivan@example.com',
+            'password' => 'BookPass7',
+            'rememberMe' => false,
+        ]);
+
+        $this->assertTrue($login->login());
+        $this->assertFalse(Yii::$app->user->isGuest);
+        $this->assertEquals('reader_ivan', Yii::$app->user->identity->username);
+
         Yii::$app->user->logout();
+        $this->assertTrue(Yii::$app->user->isGuest);
     }
 
-    public function testLoginNoUser()
+    public function testLoginWithWrongPasswordFails()
     {
-        $this->_model = new LoginForm(
-            new Security(),
-            [
-                'username' => 'not_existing_username',
-                'password' => 'not_existing_password',
-            ],
-        );
+        $login = new LoginForm([
+            'email' => 'ivan@example.com',
+            'password' => 'WrongPass9',
+        ]);
 
-        verify($this->_model->login())->false();
-        verify(Yii::$app->user->isGuest)->true();
+        $this->assertFalse($login->login());
+        $this->assertArrayHasKey('password', $login->errors);
+        $this->assertTrue(Yii::$app->user->isGuest);
     }
 
-    public function testLoginWrongPassword()
+    public function testLoginWithNonExistentEmailFails()
     {
-        $this->_model = new LoginForm(
-            new Security(),
-            [
-                'username' => 'demo',
-                'password' => 'wrong_password',
-            ],
-        );
+        $login = new LoginForm([
+            'email' => 'ghost@example.com',
+            'password' => 'BookPass7',
+        ]);
 
-        verify($this->_model->login())->false();
-        verify(Yii::$app->user->isGuest)->true();
-        verify($this->_model->errors)->arrayHasKey('password');
-    }
-
-    public function testLoginCorrect()
-    {
-        $this->_model = new LoginForm(
-            new Security(),
-            [
-                'username' => 'demo',
-                'password' => 'demo',
-            ],
-        );
-
-        verify($this->_model->login())->true();
-        verify(Yii::$app->user->isGuest)->false();
-        verify($this->_model->errors)->arrayHasNotKey('password');
+        $this->assertFalse($login->login());
+        $this->assertArrayHasKey('password', $login->errors);
+        $this->assertTrue(Yii::$app->user->isGuest);
     }
 }

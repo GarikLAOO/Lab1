@@ -1,67 +1,50 @@
 <?php
 
-declare(strict_types=1);
-
 namespace app\models;
 
 use Yii;
 use yii\base\Model;
-use yii\base\Security;
 
-/**
- * LoginForm is the model behind the login form.
- *
- * @property-read User|null $user
- *
 class LoginForm extends Model
 {
-    public string $username = '';
-    public string $password = '';
-    public bool $rememberMe = true;
-    private User|null $_user = null;
-    private bool $_userLoaded = false;
-    public function __construct(private readonly Security $security, $config = [])
-    {
-        parent::__construct($config);
-    }
+    public $email;
+    public $password;
+    public $rememberMe = true;
 
-    /**
-     * @return array the validation rules.
-     */
-    public function rules(): array
+    private ?User $_user = null;
+    private bool $_userLoaded = false;
+
+    public function rules()
     {
         return [
-            // username and password are both required
-            [['username', 'password'], 'required'],
-            // rememberMe must be a boolean value
+            ['email', 'trim'],
+            ['email', 'filter', 'filter' => fn($value) => mb_strtolower((string) $value)],
+            [['email', 'password'], 'required', 'message' => 'Поле «{attribute}» є обов’язковим.'],
+            ['email', 'email', 'message' => 'Введіть коректну адресу електронної пошти.'],
             ['rememberMe', 'boolean'],
-            // password is validated by validatePassword()
             ['password', 'validatePassword'],
         ];
     }
 
-    /**
-     * Validates the password.
-     * This method serves as the inline validation for password.
-     *
-     * @param string $attribute the attribute currently being validated
-     * @param array $params the additional name-value pairs given in the rule
-     */
-    public function validatePassword(string $attribute, array|null $params): void
+    public function attributeLabels()
+    {
+        return [
+            'email' => 'Електронна пошта (Email)',
+            'password' => 'Пароль',
+            'rememberMe' => 'Запам’ятати мене',
+        ];
+    }
+
+    public function validatePassword($attribute)
     {
         if (!$this->hasErrors()) {
             $user = $this->getUser();
-
-            if (!$user || !$this->security->validatePassword($this->password, $user->passwordHash)) {
-                $this->addError($attribute, 'Incorrect username or password.');
+            if (!$user || !$user->validatePassword((string) $this->password)) {
+                $this->addError($attribute, 'Неправильний email або пароль.');
             }
         }
     }
 
-    /**
-     * Logs in a user using the provided username and password.
-     * @return bool whether the user is logged in successfully
-     */
     public function login(): bool
     {
         if ($this->validate()) {
@@ -71,15 +54,10 @@ class LoginForm extends Model
         return false;
     }
 
-    /**
-     * Finds user by [[username]]
-     *
-     * @return User|null
-     */
-    public function getUser(): User|null
+    public function getUser(): ?User
     {
         if (!$this->_userLoaded) {
-            $this->_user = User::findByUsername($this->username);
+            $this->_user = User::findByEmail((string) $this->email);
             $this->_userLoaded = true;
         }
 

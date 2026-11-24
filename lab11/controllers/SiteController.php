@@ -89,21 +89,9 @@ class SiteController extends Controller
      *
      * @return Response|string
      */
-    public function actionLogin(): Response|string
+    public function actionLogin()
     {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
-        $model = new LoginForm($this->security);
-
-        if ($model->load($this->request->post()) && $model->login()) {
-            return $this->goBack();
-        }
-
-        $model->password = '';
-
-        return $this->render('login', ['model' => $model]);
+        return $this->redirect(['auth/login']);
     }
 
     /**
